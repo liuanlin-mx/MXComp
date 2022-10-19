@@ -1,0 +1,244 @@
+#include "plugin_processor.h"
+#include "plugin_editor.h"
+
+AudioEffect* createEffectInstance(audioMasterCallback audio_master)
+{
+    plugin_processor *effect = new plugin_processor(audio_master);
+    AEffEditor *editor = new plugin_editor(effect);
+    effect->setEditor(editor);
+    return effect;
+}
+
+plugin_processor::plugin_processor(audioMasterCallback audio_master)
+    : AudioEffectX(audio_master, 1, PARAMETER_NUM)	// 1 program, 1 parameter only
+{
+    setNumInputs(2);        // stereo in
+    setNumOutputs(2);       // stereo out
+    setUniqueID('Comp');    // identify
+    canProcessReplacing();  // supports replacing output
+    //canDoubleReplacing();   // supports double precision processing
+
+    vst_strncpy(_program_name, "Default", kVstMaxProgNameLen);  // default program name
+    for (std::int32_t i = 0; i < PARAMETER_NUM; i++)
+    {
+        _set_patameter(i, _parameters[i].value);
+    }
+}
+
+plugin_processor::~plugin_processor()
+{
+    // nothing to do here
+}
+
+
+void plugin_processor::processReplacing(float** inputs, float** outputs, VstInt32 sample_frames)
+{
+    float* in1  =  inputs[0];
+    float* in2  =  inputs[1];
+    float* out1 = outputs[0];
+    float* out2 = outputs[1];
+
+    std::lock_guard<std::mutex> l(_mtx);
+    for (std::int32_t i = 0; i < sample_frames; i++)
+    {
+        _in_meter[0].put(in1[i]);
+        _in_meter[1].put(in2[i]);
+        out1[i] = _comp[0].process(in1[i], in1[i]);
+        out2[i] = _comp[1].process(in2[i], in2[i]);
+        
+        _out_meter[0].put(out1[i]);
+        _out_meter[1].put(out2[i]);
+    }
+}
+
+
+void plugin_processor::processDoubleReplacing(double** inputs, double** outputs, VstInt32 sample_frames)
+{
+}
+
+
+void plugin_processor::setSampleRate(float sample_rate)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    AudioEffect::setSampleRate(sample_rate);
+    _comp[0].set_sample_rate(sample_rate);
+    _comp[1].set_sample_rate(sample_rate);
+}
+    
+void plugin_processor::setProgramName(char* name)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    vst_strncpy(_program_name, name, kVstMaxProgNameLen);
+}
+
+void plugin_processor::getProgramName(char* name)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    vst_strncpy(name, _program_name, kVstMaxProgNameLen);
+}
+
+void plugin_processor::setParameter(VstInt32 index, float value)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    _parameters[index].set_value(value);
+    _set_patameter(index, _parameters[index].value);
+}
+
+
+float plugin_processor::getParameter(VstInt32 index)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    return _parameters[index].get_value();
+}
+
+
+void plugin_processor::getParameterName(VstInt32 index, char* label)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    vst_strncpy(label, _parameters[index].name.c_str(), kVstMaxParamStrLen);
+}
+
+
+void plugin_processor::getParameterDisplay(VstInt32 index, char* text)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    vst_strncpy(text, _parameters[index].get_display().c_str(), kVstMaxParamStrLen);
+}
+
+
+void plugin_processor::getParameterLabel(VstInt32 index, char* label)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    vst_strncpy(label, _parameters[index].label.c_str(), kVstMaxParamStrLen);
+}
+
+
+bool plugin_processor::getEffectName(char* name)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    vst_strncpy(name, "MXComp", kVstMaxEffectNameLen);
+    return true;
+}
+
+
+bool plugin_processor::getProductString(char* text)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    vst_strncpy(text, "MXComp", kVstMaxProductStrLen);
+    return true;
+}
+
+
+bool plugin_processor::getVendorString(char* text)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    vst_strncpy(text, "liuanlin-mx", kVstMaxVendorStrLen);
+    return true;
+}
+
+
+VstInt32 plugin_processor::getVendorVersion()
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    return 1000;
+}
+
+
+void plugin_processor::set_patameter(std::int32_t idx, float value)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    _parameters[idx].value = value;
+    _set_patameter(idx, value);
+}
+
+
+float plugin_processor::get_patameter(std::int32_t idx)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    return _parameters[idx].value;
+}
+
+void plugin_processor::get_patameter(std::int32_t idx, plugin_processor::parameter& param)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    param = _parameters[idx];
+}
+
+std::int32_t plugin_processor::get_ratio_map(float *map_in, float *map_out, float min, float max, float setup, std::int32_t buf_size)
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    return _comp[0].get_ratio_map(map_in, map_out, min, max, setup, buf_size);
+}
+
+void plugin_processor::get_lv_meter_info(plugin_processor::lv_meter info[2])
+{
+    std::lock_guard<std::mutex> l(_mtx);
+    info[0].in_peek_db = _in_meter[0].get_peek_db();
+    info[0].in_rms_db = _in_meter[0].get_rms_db();
+    info[0].out_peek_db = _out_meter[0].get_peek_db();
+    info[0].out_rms_db = _out_meter[0].get_rms_db();
+    info[0].gr_db = _comp[0].get_gr_db();
+    
+    info[1].in_peek_db = _in_meter[1].get_peek_db();
+    info[1].in_rms_db = _in_meter[1].get_rms_db();
+    info[1].out_peek_db = _out_meter[1].get_peek_db();
+    info[1].out_rms_db = _out_meter[1].get_rms_db();
+    info[1].gr_db = _comp[1].get_gr_db();
+}
+
+void plugin_processor::_set_patameter(std::int32_t idx, float value)
+{
+    switch (idx)
+    {
+        case PARAMETER_IDX_THRESH:
+        {
+            _comp[0].set_thresh(value);
+            _comp[1].set_thresh(value);
+            break;
+        }
+        case PARAMETER_IDX_RATIO:
+        {
+            _comp[0].set_ratio(value);
+            _comp[1].set_ratio(value);
+            break;
+        }
+        case PARAMETER_IDX_KNEE:
+        {
+            _comp[0].set_knee(value);
+            _comp[1].set_knee(value);
+            break;
+        }
+        case PARAMETER_IDX_GAIN:
+        {
+            _comp[0].set_gain(value);
+            _comp[1].set_gain(value);
+            break;
+        }
+        case PARAMETER_IDX_ATTACK:
+        {
+            _comp[0].set_attack(value);
+            _comp[1].set_attack(value);
+            break;
+        }
+        case PARAMETER_IDX_RELEASE:
+        {
+            _comp[0].set_release(value);
+            _comp[1].set_release(value);
+            break;
+        }
+        case PARAMETER_IDX_RMS:
+        {
+            _comp[0].set_rms(value);
+            _comp[1].set_rms(value);
+            break;
+        }
+        case PARAMETER_IDX_PRE:
+        {
+            _comp[0].set_pre(value);
+            _comp[1].set_pre(value);
+            
+            setInitialDelay(_comp[0].get_latency());
+            break;
+        }
+    }
+}

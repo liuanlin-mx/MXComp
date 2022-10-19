@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeLite_Project Name="mx_comp" Version="11000" InternalType="Console">
+  <Plugins>
+    <Plugin Name="qmake">
+      <![CDATA[00020001N0005Debug0000000000000001N0009linux_vst000000000000]]>
+    </Plugin>
+  </Plugins>
+  <VirtualDirectory Name="pluginterfaces">
+    <VirtualDirectory Name="vst2.x">
+      <File Name="pluginterfaces/vst2.x/vstplugmain.cpp"/>
+      <File Name="pluginterfaces/vst2.x/audioeffectx.h"/>
+      <File Name="pluginterfaces/vst2.x/aeffect.h"/>
+      <File Name="pluginterfaces/vst2.x/audioeffect.h"/>
+      <File Name="pluginterfaces/vst2.x/audioeffect.cpp"/>
+      <File Name="pluginterfaces/vst2.x/aeffectx.h"/>
+      <File Name="pluginterfaces/vst2.x/aeffeditor.h"/>
+      <File Name="pluginterfaces/vst2.x/audioeffectx.cpp"/>
+      <File Name="pluginterfaces/vst2.x/vstfxstore.h"/>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <VirtualDirectory Name="imgui_vst_backend">
+    <File Name="imgui_vst_backend/imgui_vst_editor.cpp"/>
+    <File Name="imgui_vst_backend/imgui_vst_editor.h"/>
+    <File Name="imgui_vst_backend/imgui_impl_opengl2.cpp"/>
+    <File Name="imgui_vst_backend/imgui_impl_glfw.h"/>
+    <File Name="imgui_vst_backend/imgui_impl_opengl2.h"/>
+    <File Name="imgui_vst_backend/imgui_impl_glfw.cpp"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="imgui-knobs">
+    <File Name="imgui-knobs/README.md"/>
+    <File Name="imgui-knobs/LICENSE"/>
+    <File Name="imgui-knobs/imgui-knobs.cpp"/>
+    <File Name="imgui-knobs/imgui-knobs.h"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="implot">
+    <File Name="implot/LICENSE"/>
+    <File Name="implot/implot.h"/>
+    <File Name="implot/implot_items.cpp"/>
+    <File Name="implot/implot_internal.h"/>
+    <File Name="implot/implot.cpp"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="src">
+    <File Name="src/level_meter.h"/>
+    <File Name="src/level_meter.cpp"/>
+    <File Name="src/plugin_editor.cpp"/>
+    <File Name="src/plugin_editor.h"/>
+    <File Name="src/plugin_processor.cpp"/>
+    <File Name="src/plugin_processor.h"/>
+    <File Name="src/rms.cpp"/>
+    <File Name="src/rms.h"/>
+    <File Name="src/delay.cpp"/>
+    <File Name="src/delay.h"/>
+    <File Name="src/compressor.h"/>
+    <File Name="src/compressor.cpp"/>
+  </VirtualDirectory>
+  <VirtualDirectory Name="imgui">
+    <File Name="imgui/imgui_widgets.cpp"/>
+    <File Name="imgui/imgui_draw.cpp"/>
+    <File Name="imgui/imstb_textedit.h"/>
+    <File Name="imgui/imstb_truetype.h"/>
+    <File Name="imgui/imgui.h"/>
+    <File Name="imgui/imgui_demo.cpp"/>
+    <File Name="imgui/imstb_rectpack.h"/>
+    <File Name="imgui/imgui.cpp"/>
+    <File Name="imgui/imgui_tables.cpp"/>
+    <File Name="imgui/imgui_internal.h"/>
+    <File Name="imgui/imconfig.h"/>
+    <VirtualDirectory Name="misc"/>
+  </VirtualDirectory>
+  <Description/>
+  <Dependencies/>
+  <Settings Type="Dynamic Library">
+    <GlobalSettings>
+      <Compiler Options="" C_Options="" Assembler="">
+        <IncludePath Value="."/>
+      </Compiler>
+      <Linker Options="">
+        <LibraryPath Value="."/>
+      </Linker>
+      <ResourceCompiler Options=""/>
+    </GlobalSettings>
+    <Configuration Name="Debug" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-gdwarf-2;-O0;-Wall" C_Options="-gdwarf-2;-O0;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="1">
+        <IncludePath Value="."/>
+        <IncludePath Value="src"/>
+        <IncludePath Value="imgui"/>
+        <IncludePath Value="imgui_vst_backend"/>
+        <IncludePath Value="imgui-knobs"/>
+        <IncludePath Value="implot"/>
+        <Preprocessor Value="GLFW_EXPOSE_NATIVE_X11"/>
+      </Compiler>
+      <Linker Options="" Required="yes">
+        <Library Value="glfw"/>
+        <Library Value="OpenGL"/>
+        <Library Value="X11"/>
+        <Library Value="dl"/>
+        <Library Value="pthread"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="$(ConfigurationName)" Command="$(OutputFile)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <BuildSystem Name="Default"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Release" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-O2;-Wall" C_Options="-O2;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="1">
+        <IncludePath Value="."/>
+        <Preprocessor Value="NDEBUG"/>
+      </Compiler>
+      <Linker Options="" Required="yes"/>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="$(ConfigurationName)" Command="$(OutputFile)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <BuildSystem Name="Default"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+    <Configuration Name="linux_vst" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Dynamic Library" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-fPIC;-O0;-gdwarf-2;-Wall" C_Options="-fPIC;-O0;-gdwarf-2;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="1">
+        <IncludePath Value="."/>
+        <IncludePath Value="src"/>
+        <IncludePath Value="imgui"/>
+        <IncludePath Value="imgui_vst_backend"/>
+        <IncludePath Value="imgui-knobs"/>
+        <IncludePath Value="implot"/>
+        <Preprocessor Value="GLFW_EXPOSE_NATIVE_X11"/>
+      </Compiler>
+      <Linker Options="-static-libstdc++;-static-libgcc" Required="yes">
+        <Library Value="glfw"/>
+        <Library Value="OpenGL"/>
+        <Library Value="X11"/>
+        <Library Value="dl"/>
+        <Library Value="pthread"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName).so" IntermediateDirectory="$(ConfigurationName)" Command="$(OutputFile)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <BuildSystem Name="Default"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild>
+        <Command Enabled="yes">cp $(IntermediateDirectory)/$(ProjectName).so ~/.vst/</Command>
+      </PostBuild>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+  </Settings>
+</CodeLite_Project>

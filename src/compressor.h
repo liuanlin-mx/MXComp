@@ -3,6 +3,7 @@
 #include <math.h>
 #include "rms.h"
 #include "delay.h"
+#include "ring_buffer.h"
 
 class compressor
 {

@@ -1,5 +1,6 @@
 #include "plugin_editor.h"
 #include "imgui-knobs.h"
+#include "net_log.h"
 
 plugin_editor::plugin_editor(plugin_processor* effect)
     : imgui_vst_editor(effect, 640, 480)
@@ -50,8 +51,6 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
     
     ImGui::BeginGroup();
     
-#if 1
-    
     {
         std::int32_t idx = plugin_processor::PARAMETER_IDX_THRESH;
         if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 0.1f, "%.1fdB", ImGuiKnobVariant_WiperOnly, 0, ImGuiKnobFlags_ValueTooltip))
@@ -75,41 +74,6 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
             _effect->set_patameter(idx, _parameter[idx].value);
         }
     }
-    ImGui::NewLine();
-    
-    
-    {
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_ATTACK;
-        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 0.1f, "%.1fms", ImGuiKnobVariant_WiperOnly))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-    }
-    ImGui::SameLine();
-    {
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_RELEASE;
-        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 1.f, "%.0fms", ImGuiKnobVariant_WiperOnly))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-    }
-    ImGui::SameLine();
-    {
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_RMS;
-        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 0.1f, "%.1fms", ImGuiKnobVariant_WiperOnly))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-    }
-    
-    ImGui::NewLine();
-    {
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_PRE;
-        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 1.f, "%.0fms", ImGuiKnobVariant_WiperOnly))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-    }
     ImGui::SameLine();
     
     {
@@ -119,93 +83,70 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
             _effect->set_patameter(idx, _parameter[idx].value);
         }
     }
+    ImGui::NewLine();
     
     
-#else
-    ImGui::PushItemWidth(200);
-    {
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_THRESH;
-        if (ImGui::SliderFloat("thresh", &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.1fdB"))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-    }
-    
-    {
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_GAIN;
-        if (ImGui::SliderFloat("gain", &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.1fdB"))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-    }
-    
-    
-    {
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_RATIO;
-        if (ImGui::SliderFloat("ratio", &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.1f"))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-    }
-    
-    {
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_KNEE;
-        if (ImGui::SliderFloat("knee", &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.1fdB"))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-    }
     {
         std::int32_t idx = plugin_processor::PARAMETER_IDX_ATTACK;
-        if (ImGui::SliderFloat("attack", &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.1fms"))
+        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 0.1f, "%.1fms", ImGuiKnobVariant_WiperOnly))
         {
             _effect->set_patameter(idx, _parameter[idx].value);
         }
     }
-    
+    ImGui::SameLine();
     {
         std::int32_t idx = plugin_processor::PARAMETER_IDX_RELEASE;
-        if (ImGui::SliderFloat("release", &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.0fms"))
+        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 1.f, "%.0fms", ImGuiKnobVariant_WiperOnly))
         {
             _effect->set_patameter(idx, _parameter[idx].value);
         }
     }
-    
+    ImGui::SameLine();
     {
         std::int32_t idx = plugin_processor::PARAMETER_IDX_RMS;
-        if (ImGui::SliderFloat("rms", &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.1fms"))
+        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 0.1f, "%.1fms", ImGuiKnobVariant_WiperOnly))
         {
             _effect->set_patameter(idx, _parameter[idx].value);
         }
     }
+    ImGui::SameLine();
     
     {
         std::int32_t idx = plugin_processor::PARAMETER_IDX_PRE;
-        if (ImGui::SliderFloat("pre", &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.1fms"))
+        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 1.f, "%.0fms", ImGuiKnobVariant_WiperOnly))
         {
             _effect->set_patameter(idx, _parameter[idx].value);
         }
     }
-    ImGui::PopItemWidth();
-#endif
+    ImGui::NewLine();
+    
+    {
+        ImGui::PushItemWidth(220);
+        std::int32_t idx = plugin_processor::PARAMETER_IDX_DETECTOR;
+        int contents_type = _parameter[idx].value;
+        if (ImGui::Combo("##Detector", &contents_type, "(L,R)\0Max(L,R)\0Avg(L,R)\0L\0R\0Side\0"))
+        {
+            _parameter[idx].value = contents_type;
+            _effect->set_patameter(idx, _parameter[idx].value);
+        }
+        ImGui::PopItemWidth();
+    }
+    
 
     ImGui::EndGroup();
-    
-    
     ImGui::SameLine();
-    
     ImGui::BeginGroup();
     
     plugin_processor::lv_meter info[2];
     _effect->get_lv_meter_info(info);
     
-    //if (ImGui::GetTime() - _update_time > 0.1)
+    if (ImGui::GetTime() - _update_time > 0.1)
     {
         _update_time = ImGui::GetTime();
         _ratio_map_count = _effect->get_ratio_map(_ratio_map_in, _ratio_map_out, -60, 0, 0.1, 1024);
     }
     
-    if (ImPlot::BeginPlot("##ratio", ImVec2(0, 0)/*, ImPlotFlags_Equal*/))
+    if (ImPlot::BeginPlot("##ratio", ImVec2(-1, 250)/*, ImPlotFlags_Equal*/))
     {
         ImPlotAxisFlags axis_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight;
         ImPlot::SetupAxes(0, 0, axis_flags, axis_flags | ImPlotAxisFlags_Opposite);
@@ -218,14 +159,14 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
         }
         
        
-       {
+        {
             ImPlotBarGroupsFlags flags = ImPlotBarGroupsFlags_Stacked;
             static const char* labels[] = {"##gr","##range"};
             float gr[8] = {0, 0, -info[0].gr_db, -info[1].gr_db,
                             0, 0, -60, -60};
                             
             ImPlot::PlotBarGroups(labels, gr, 2, 4, 0.67, 0, flags);
-       }
+        }
         
         {
             std::int32_t idx = 0;
@@ -302,9 +243,59 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
 
     ImGui::EndGroup();
     
+    
+    
+    {
+        //ImGui::PushItemWidth(180);
+        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_LP_FREQ;
+        if (ImGui::SliderFloat(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.0fHz"))
+        {
+            _effect->set_patameter(idx, _parameter[idx].value);
+        }
+        //ImGui::PopItemWidth();
+    }
+    
+    {
+        //ImGui::PushItemWidth(180);
+        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_HP_FREQ;
+        if (ImGui::SliderFloat(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.0fHz"))
+        {
+            _effect->set_patameter(idx, _parameter[idx].value);
+        }
+        //ImGui::PopItemWidth();
+    }
+    {
+        //ImGui::PushItemWidth(180);
+        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_Q;
+        if (ImGui::SliderFloat(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.0f"))
+        {
+            _effect->set_patameter(idx, _parameter[idx].value);
+        }
+        //ImGui::PopItemWidth();
+    }
+    
     //ImGui::SameLine();
     
     ImGui::BeginGroup();
+    
+    
+    if (ImPlot::BeginPlot("##wave", ImVec2(-1, 200)/*, ImPlotFlags_Equal*/))
+    {
+        //ImPlotAxisFlags axis_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight;
+        //ImPlot::SetupAxes(0, 0, axis_flags, axis_flags | ImPlotAxisFlags_Opposite);
+        //ImPlot::SetupAxesLimits(-60, 6, -60, 6);
+        
+        {
+            //ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 2);
+            std::uint32_t cnt = _effect->read_in_wave(_wave, 4410);
+            //net_log_debug("cnt:%d\n", cnt);
+            ImPlot::PlotLine("##in wave", _wave, cnt);
+            //ImPlot::PopStyleVar();
+        }
+        
+        ImPlot::EndPlot();
+    }
+    
     ImGui::EndGroup();
     
     

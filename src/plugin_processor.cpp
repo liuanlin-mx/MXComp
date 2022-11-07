@@ -1,5 +1,6 @@
 #include "plugin_processor.h"
 #include "plugin_editor.h"
+#include "net_log.h"
 
 AudioEffect* createEffectInstance(audioMasterCallback audio_master)
 {
@@ -11,6 +12,7 @@ AudioEffect* createEffectInstance(audioMasterCallback audio_master)
 
 plugin_processor::plugin_processor(audioMasterCallback audio_master)
     : AudioEffectX(audio_master, 1, PARAMETER_NUM)	// 1 program, 1 parameter only
+    , _detector(0)
 {
     setNumInputs(2);        // stereo in
     setNumOutputs(2);       // stereo out
@@ -19,10 +21,18 @@ plugin_processor::plugin_processor(audioMasterCallback audio_master)
     //canDoubleReplacing();   // supports double precision processing
 
     vst_strncpy(_program_name, "Default", kVstMaxProgNameLen);  // default program name
+    
+    _svf_filter_lp[0].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
+    _svf_filter_lp[1].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
+    
+    _svf_filter_hp[0].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
+    _svf_filter_hp[1].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
+    
     for (std::int32_t i = 0; i < PARAMETER_NUM; i++)
     {
         _set_patameter(i, _parameters[i].value);
     }
+    
 }
 
 plugin_processor::~plugin_processor()
@@ -41,10 +51,87 @@ void plugin_processor::processReplacing(float** inputs, float** outputs, VstInt3
     std::lock_guard<std::mutex> l(_mtx);
     for (std::int32_t i = 0; i < sample_frames; i++)
     {
-        _in_meter[0].put(in1[i]);
-        _in_meter[1].put(in2[i]);
-        out1[i] = _comp[0].process(in1[i], in1[i]);
-        out2[i] = _comp[1].process(in2[i], in2[i]);
+        float left = in1[i];
+        float right = in2[i];
+        
+        if (_min_freq > 20)
+        {
+            left = _svf_filter_hp[0].tick(left);
+            right = _svf_filter_hp[1].tick(right);
+        }
+        
+        if (_max_freq < 20000)
+        {
+            //left = _svf_filter_lp[0].tick(left);
+            //right = _svf_filter_lp[1].tick(right);
+        }
+        
+        if (left > _max)
+        {
+            _max = left;
+        }
+        
+        if (left < _min)
+        {
+            _min = left;
+        }
+        if (++_ring_cnt % 100 == 0)
+        {
+            _ring_buffer[0].put(_max);
+            _ring_buffer[0].put(_min);
+            _max = -1.0;
+            _min = 1.0;
+        }
+        
+        
+        _in_meter[0].put(left);
+        _in_meter[1].put(right);
+        switch (_detector)
+        {
+            case DETECTOR_LR:
+            {
+                out1[i] = _comp[0].process(in1[i], left);
+                out2[i] = _comp[1].process(in2[i], right);
+                break;
+            }
+            case DETECTOR_MAX_LR:
+            {
+                float in = std::max(left, right);
+                out1[i] = _comp[0].process(in1[i], in);
+                out2[i] = _comp[1].process(in2[i], in);
+                break;
+            }
+            case DETECTOR_AVG_LR:
+            {
+                float in = (left + right) * 0.5;
+                out1[i] = _comp[0].process(in1[i], in);
+                out2[i] = _comp[1].process(in2[i], in);
+                break;
+            }
+            case DETECTOR_L:
+            {
+                out1[i] = _comp[0].process(in1[i], left);
+                out2[i] = _comp[1].process(in2[i], left);
+                break;
+            }
+            case DETECTOR_R:
+            {
+                out1[i] = _comp[0].process(in1[i], right);
+                out2[i] = _comp[1].process(in2[i], right);
+                break;
+            }
+            case DETECTOR_SIDE:
+            {
+                break;
+            }
+            default:
+            {
+                float in = std::max(left, right);
+                out1[i] = _comp[0].process(in1[i], in);
+                out2[i] = _comp[1].process(in2[i], in);
+                break;
+            }
+        }
         
         _out_meter[0].put(out1[i]);
         _out_meter[1].put(out2[i]);
@@ -60,9 +147,20 @@ void plugin_processor::processDoubleReplacing(double** inputs, double** outputs,
 void plugin_processor::setSampleRate(float sample_rate)
 {
     std::lock_guard<std::mutex> l(_mtx);
+    _sample_rate = sample_rate;
     AudioEffect::setSampleRate(sample_rate);
     _comp[0].set_sample_rate(sample_rate);
     _comp[1].set_sample_rate(sample_rate);
+    
+    _svf_filter_lp[0].resetState();
+    _svf_filter_lp[0].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
+    _svf_filter_lp[1].resetState();
+    _svf_filter_lp[1].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
+    
+    _svf_filter_hp[0].resetState();
+    _svf_filter_hp[0].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
+    _svf_filter_hp[1].resetState();
+    _svf_filter_hp[1].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
 }
     
 void plugin_processor::setProgramName(char* name)
@@ -186,6 +284,11 @@ void plugin_processor::get_lv_meter_info(plugin_processor::lv_meter info[2])
     info[1].gr_db = _comp[1].get_gr_db();
 }
 
+std::uint32_t plugin_processor::read_in_wave(float *buf, std::uint32_t max_cnt)
+{
+    return _ring_buffer[0].read(buf, max_cnt);
+}
+
 void plugin_processor::_set_patameter(std::int32_t idx, float value)
 {
     switch (idx)
@@ -238,6 +341,46 @@ void plugin_processor::_set_patameter(std::int32_t idx, float value)
             _comp[1].set_pre(value);
             
             setInitialDelay(_comp[0].get_latency());
+            break;
+        }
+        case PARAMETER_IDX_DETECTOR:
+        {
+            _detector = value;
+            break;
+        }
+        case PARAMETER_IDX_FILTER_HP_FREQ:
+        {
+            _min_freq = value;
+            _svf_filter_hp[0].resetState();
+            _svf_filter_hp[0].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
+            _svf_filter_hp[1].resetState();
+            _svf_filter_hp[1].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
+            break;
+        }
+        case PARAMETER_IDX_FILTER_LP_FREQ:
+        {
+            _max_freq = value;
+            _svf_filter_lp[0].resetState();
+            _svf_filter_lp[0].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
+            _svf_filter_lp[1].resetState();
+            _svf_filter_lp[1].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
+            
+            break;
+        }
+        case PARAMETER_IDX_FILTER_Q:
+        {
+            _filter_q = value;
+            net_log_info("----------------------- q:%f\n", value);
+            _svf_filter_hp[0].resetState();
+            _svf_filter_hp[0].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
+            _svf_filter_hp[1].resetState();
+            _svf_filter_hp[1].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
+            
+            _svf_filter_lp[0].resetState();
+            _svf_filter_lp[0].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
+            _svf_filter_lp[1].resetState();
+            _svf_filter_lp[1].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
+            
             break;
         }
     }

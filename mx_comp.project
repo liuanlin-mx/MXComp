@@ -40,6 +40,9 @@
     <File Name="implot/implot.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="src">
+    <File Name="src/SvfLinearTrapOptimised2.hpp"/>
+    <File Name="src/ring_buffer.h"/>
+    <File Name="src/ring_buffer.cpp"/>
     <File Name="src/level_meter.h"/>
     <File Name="src/level_meter.cpp"/>
     <File Name="src/plugin_editor.cpp"/>

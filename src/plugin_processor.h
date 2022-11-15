@@ -28,6 +28,7 @@ public:
         PARAMETER_IDX_FILTER_HP_FREQ,
         PARAMETER_IDX_FILTER_LP_FREQ,
         PARAMETER_IDX_FILTER_Q,
+        PARAMETER_IDX_WAVE_VIEW_DURATION,
         PARAMETER_NUM,
     };
     
@@ -136,6 +137,7 @@ private:
         parameter{"hp freq", "Hz", 20000, 1, 20000, 20},
         parameter{"lp freq", "Hz", 20000, 1, 20000, 20000},
         parameter{"filter q", "", 3200, 0.025, 40, 0.5},
+        parameter{"duration", "", 100, 1, 60, 15},
     };
     
     char _program_name[kVstMaxProgNameLen + 1];

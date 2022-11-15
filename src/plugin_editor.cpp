@@ -49,8 +49,54 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
     ImGui::SetWindowSize(ImVec2(w, h), ImGuiCond_Always);
     ImPlot::CreateContext();
     
-    ImGui::BeginGroup();
+    _draw_comp();
     
+    ImGui::SameLine();
+    _draw_filter();
+    
+    ImGui::SameLine();
+    _draw_meter();
+    
+    _draw_wave();
+    
+    ImGui::End();
+    
+    ImPlot::SetCurrentContext(NULL);
+}
+
+void plugin_editor::_draw_filter()
+{
+    ImGui::BeginGroup();
+    {
+        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_HP_FREQ;
+        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 0.1f, "%.0f", ImGuiKnobVariant_WiperOnly))
+        {
+            _effect->set_patameter(idx, _parameter[idx].value);
+        }
+    }
+    ImGui::SameLine();
+    {
+        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_LP_FREQ;
+        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 1.f, "%.0fHz", ImGuiKnobVariant_WiperOnly))
+        //if (ImGui::SliderFloat(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.0fHz"))
+        {
+            _effect->set_patameter(idx, _parameter[idx].value);
+        }
+    }
+    ImGui::NewLine();
+    {
+        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_Q;
+        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 0.1f, "%.1f", ImGuiKnobVariant_WiperOnly))
+        {
+            _effect->set_patameter(idx, _parameter[idx].value);
+        }
+    }
+    ImGui::EndGroup();
+}
+
+void plugin_editor::_draw_comp()
+{
+    ImGui::BeginGroup();
     {
         std::int32_t idx = plugin_processor::PARAMETER_IDX_THRESH;
         if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 0.1f, "%.1fdB", ImGuiKnobVariant_WiperOnly, 0, ImGuiKnobFlags_ValueTooltip))
@@ -118,7 +164,7 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
             _effect->set_patameter(idx, _parameter[idx].value);
         }
     }
-    ImGui::NewLine();
+    
     
     {
         ImGui::PushItemWidth(220);
@@ -131,45 +177,22 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
         }
         ImGui::PopItemWidth();
     }
+    
+    {
+        ImGui::PushItemWidth(220);
+        std::int32_t idx = plugin_processor::PARAMETER_IDX_WAVE_VIEW_DURATION;
+        if (ImGui::SliderFloat("##duration", &_parameter[idx].value, 1, 60, "%.0f"))
+        {
+            _effect->set_patameter(idx, _parameter[idx].value);
+        }
+        ImGui::PopItemWidth();
+    }
     ImGui::EndGroup();
-    
-    
-    
-    
-    ImGui::SameLine();
-    ImGui::BeginGroup();
-    
-    
-    {
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_LP_FREQ;
-        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 1.f, "%.0fHz", ImGuiKnobVariant_WiperOnly))
-        //if (ImGui::SliderFloat(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.0fHz"))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-    }
-    ImGui::SameLine();
-    {
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_HP_FREQ;
-        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 0.1f, "%.0f", ImGuiKnobVariant_WiperOnly))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-    }
-    ImGui::NewLine();
-    {
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_Q;
-        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 0.1f, "%.1f", ImGuiKnobVariant_WiperOnly))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-    }
-    
-    ImGui::EndGroup();
-    
-    
-    
-    ImGui::SameLine();
+}
+
+
+void plugin_editor::_draw_meter()
+{
     ImGui::BeginGroup();
     
     plugin_processor::lv_meter info[2];
@@ -252,35 +275,11 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
         ImPlot::EndPlot();
     }
     
-    //ImGui::SameLine();
-    
-    //ImGui::BeginGroup();
-    //ImGui::PushItemWidth(1);
-    //ImGui::SetNextItemWidth(100);
-    //ImGui::SliderFloat("xx", &v[0], -60, 0);
-    //ImGui::ProgressBar((v[0] + 120.) / 120., ImVec2(320, 0), ""); ImGui::SameLine(); ImGui::Text("%.1f", v[0]);
-    //ImGui::ProgressBar((v[1] + 120.) / 120., ImVec2(320, 0), ""); ImGui::SameLine(); ImGui::Text("%.1f", v[1]);
-    //ImGui::ProgressBar((v[2]) / 60., ImVec2(320, 0), ""); ImGui::SameLine(); ImGui::Text("%.1f", v[2]);
-    //ImGui::EndGroup();
-#if 0
-    static ImS8  data[10] = {-10, -3, 0};
-    
-    if (ImPlot::BeginPlot("Bar Plot", ImVec2(0, 0)))
-    {
-        ImPlot::SetupAxesLimits(0, 2, -60, 6);
-        static const char *labels[] = {"in", "out", "gr"};
-        ImPlot::SetupAxisTicks(ImAxis_X1, 0, 2, 3, labels, false);
-        //ImPlot::PlotBars("Vertical",data,10,0.7,1);
-        ImPlot::PlotBars("Horizontal", data, 3, 0.1, 1, ImPlotBarsFlags_None);
-        ImPlot::EndPlot();
-    }
-#endif
-
     ImGui::EndGroup();
-    
-    
-    
-    
+}
+
+void plugin_editor::_draw_wave()
+{
     ImGui::BeginGroup();
     
     if (ImPlot::BeginPlot("##wave left", ImVec2(-1, 150)/*, ImPlotFlags_Equal*/))
@@ -317,11 +316,4 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
         ImPlot::EndPlot();
     }
     ImGui::EndGroup();
-    
-    
-    
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-    ImGui::End();
-    
-    ImPlot::SetCurrentContext(NULL);
 }

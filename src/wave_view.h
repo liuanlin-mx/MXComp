@@ -8,12 +8,13 @@ public:
     ~wave_view();
     
 public:
-    void set_window_size(std::uint32_t window_size, std::uint32_t sample_rate, float duration = 10);
+    void set_window_size(std::uint32_t window_size);
+    void set_sample_rate(std::uint32_t sample_rate);
+    void set_duration(float duration);
     void set_gain(float gain_db)
     {
         _gain_db = gain_db;
     }
-    
     void put_sample(float v);
     std::uint32_t read_wave(float *buf, std::uint32_t max_cnt);
     

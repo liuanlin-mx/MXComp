@@ -22,6 +22,12 @@ private:
     {
         return 20. * log10(v);
     }
+    
+    void _draw_comp();
+    void _draw_filter();
+    void _draw_meter();
+    void _draw_wave();
+    
 private:
     plugin_processor *_effect;
     plugin_processor::parameter _parameter[plugin_processor::PARAMETER_NUM];
@@ -32,5 +38,6 @@ private:
     std::uint32_t _ratio_map_count;
     float _update_time;
     float _wave[1024];
+    float _duration = 10;
 };
 #endif

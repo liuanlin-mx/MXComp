@@ -141,6 +141,11 @@ void plugin_processor::setSampleRate(float sample_rate)
     _comp[0].set_sample_rate(sample_rate);
     _comp[1].set_sample_rate(sample_rate);
     
+    _wave_view_in[0].set_sample_rate(sample_rate);
+    _wave_view_in[1].set_sample_rate(sample_rate);
+    _wave_view_out[0].set_sample_rate(sample_rate);
+    _wave_view_out[1].set_sample_rate(sample_rate);
+    
     _svf_filter_lp[0].resetState();
     _svf_filter_lp[0].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
     _svf_filter_lp[1].resetState();
@@ -368,13 +373,11 @@ void plugin_processor::_set_patameter(std::int32_t idx, float value)
             _svf_filter_lp[0].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
             _svf_filter_lp[1].resetState();
             _svf_filter_lp[1].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
-            
             break;
         }
         case PARAMETER_IDX_FILTER_Q:
         {
             _filter_q = value;
-            net_log_info("----------------------- q:%f\n", value);
             _svf_filter_hp[0].resetState();
             _svf_filter_hp[0].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
             _svf_filter_hp[1].resetState();
@@ -384,7 +387,14 @@ void plugin_processor::_set_patameter(std::int32_t idx, float value)
             _svf_filter_lp[0].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
             _svf_filter_lp[1].resetState();
             _svf_filter_lp[1].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
-            
+            break;
+        }
+        case PARAMETER_IDX_WAVE_VIEW_DURATION:
+        {
+            _wave_view_in[0].set_duration(value);
+            _wave_view_in[1].set_duration(value);
+            _wave_view_out[0].set_duration(value);
+            _wave_view_out[1].set_duration(value);
             break;
         }
     }

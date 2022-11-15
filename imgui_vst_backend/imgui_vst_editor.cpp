@@ -178,10 +178,19 @@ void imgui_vst_editor::_run()
         ImGui_ImplGlfw_PollEvents();
         glfwPollEvents();
 
+#ifndef _WIN32
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.WantCaptureMouse && io.WantTextInput)
+        {
+            if (!glfwGetWindowAttrib(window, GLFW_FOCUSED))
+            {
+                XSetInputFocus(glfwGetX11Display(), glfwGetX11Window(window), RevertToParent, CurrentTime);
+            }
+        }
+#endif
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL2_NewFrame();
         ImGui_ImplGlfw_NewFrame();
-        
         ImGui::NewFrame();
 
         draw(_rect.right - _rect.left, _rect.bottom - _rect.top);

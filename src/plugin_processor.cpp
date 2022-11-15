@@ -62,28 +62,15 @@ void plugin_processor::processReplacing(float** inputs, float** outputs, VstInt3
         
         if (_max_freq < 20000)
         {
-            //left = _svf_filter_lp[0].tick(left);
-            //right = _svf_filter_lp[1].tick(right);
+            left = _svf_filter_lp[0].tick(left);
+            right = _svf_filter_lp[1].tick(right);
         }
         
-        if (left > _max)
-        {
-            _max = left;
-        }
-        
-        if (left < _min)
-        {
-            _min = left;
-        }
-        if (++_ring_cnt % 100 == 0)
-        {
-            _ring_buffer[0].put(_max);
-            _ring_buffer[0].put(_min);
-            _max = -1.0;
-            _min = 1.0;
-        }
+        _wave_view_in[0].put_sample(left);
+        _wave_view_in[1].put_sample(right);
         
         
+
         _in_meter[0].put(left);
         _in_meter[1].put(right);
         switch (_detector)
@@ -133,6 +120,8 @@ void plugin_processor::processReplacing(float** inputs, float** outputs, VstInt3
             }
         }
         
+        _wave_view_out[0].put_sample(out1[i]);
+        _wave_view_out[1].put_sample(out2[i]);
         _out_meter[0].put(out1[i]);
         _out_meter[1].put(out2[i]);
     }
@@ -284,9 +273,22 @@ void plugin_processor::get_lv_meter_info(plugin_processor::lv_meter info[2])
     info[1].gr_db = _comp[1].get_gr_db();
 }
 
-std::uint32_t plugin_processor::read_in_wave(float *buf, std::uint32_t max_cnt)
+std::uint32_t plugin_processor::read_in_wave(std::uint32_t ch, float *buf, std::uint32_t max_cnt)
 {
-    return _ring_buffer[0].read(buf, max_cnt);
+    if (ch < 2)
+    {
+        return _wave_view_in[ch].read_wave(buf, max_cnt);
+    }
+    return 0;
+}
+
+std::uint32_t plugin_processor::read_out_wave(std::uint32_t ch, float *buf, std::uint32_t max_cnt)
+{
+    if (ch < 2)
+    {
+        return _wave_view_out[ch].read_wave(buf, max_cnt);
+    }
+    return 0;
 }
 
 void plugin_processor::_set_patameter(std::int32_t idx, float value)
@@ -315,6 +317,8 @@ void plugin_processor::_set_patameter(std::int32_t idx, float value)
         {
             _comp[0].set_gain(value);
             _comp[1].set_gain(value);
+            _wave_view_in[0].set_gain(value);
+            _wave_view_in[1].set_gain(value);
             break;
         }
         case PARAMETER_IDX_ATTACK:

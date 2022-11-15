@@ -31,6 +31,6 @@ private:
     float _ratio_map_out[1024];
     std::uint32_t _ratio_map_count;
     float _update_time;
-    float _wave[44100];
+    float _wave[1024];
 };
 #endif

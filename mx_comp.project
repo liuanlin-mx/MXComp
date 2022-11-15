@@ -40,6 +40,8 @@
     <File Name="implot/implot.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="src">
+    <File Name="src/wave_view.h"/>
+    <File Name="src/wave_view.cpp"/>
     <File Name="src/SvfLinearTrapOptimised2.hpp"/>
     <File Name="src/ring_buffer.h"/>
     <File Name="src/ring_buffer.cpp"/>

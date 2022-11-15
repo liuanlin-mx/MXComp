@@ -3,7 +3,7 @@
 #include "net_log.h"
 
 plugin_editor::plugin_editor(plugin_processor* effect)
-    : imgui_vst_editor(effect, 640, 480)
+    : imgui_vst_editor(effect, 800, 600)
     , _effect(effect)
     , _implot_ctx(NULL)
     , _update_time(0)
@@ -131,9 +131,44 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
         }
         ImGui::PopItemWidth();
     }
-    
-
     ImGui::EndGroup();
+    
+    
+    
+    
+    ImGui::SameLine();
+    ImGui::BeginGroup();
+    
+    
+    {
+        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_LP_FREQ;
+        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 1.f, "%.0fHz", ImGuiKnobVariant_WiperOnly))
+        //if (ImGui::SliderFloat(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.0fHz"))
+        {
+            _effect->set_patameter(idx, _parameter[idx].value);
+        }
+    }
+    ImGui::SameLine();
+    {
+        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_HP_FREQ;
+        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 0.1f, "%.0f", ImGuiKnobVariant_WiperOnly))
+        {
+            _effect->set_patameter(idx, _parameter[idx].value);
+        }
+    }
+    ImGui::NewLine();
+    {
+        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_Q;
+        if (ImGuiKnobs::Knob(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, 0.1f, "%.1f", ImGuiKnobVariant_WiperOnly))
+        {
+            _effect->set_patameter(idx, _parameter[idx].value);
+        }
+    }
+    
+    ImGui::EndGroup();
+    
+    
+    
     ImGui::SameLine();
     ImGui::BeginGroup();
     
@@ -245,57 +280,42 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
     
     
     
-    {
-        //ImGui::PushItemWidth(180);
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_LP_FREQ;
-        if (ImGui::SliderFloat(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.0fHz"))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-        //ImGui::PopItemWidth();
-    }
-    
-    {
-        //ImGui::PushItemWidth(180);
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_HP_FREQ;
-        if (ImGui::SliderFloat(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.0fHz"))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-        //ImGui::PopItemWidth();
-    }
-    {
-        //ImGui::PushItemWidth(180);
-        std::int32_t idx = plugin_processor::PARAMETER_IDX_FILTER_Q;
-        if (ImGui::SliderFloat(_parameter[idx].name.c_str(), &_parameter[idx].value, _parameter[idx].min, _parameter[idx].max, "%.0f"))
-        {
-            _effect->set_patameter(idx, _parameter[idx].value);
-        }
-        //ImGui::PopItemWidth();
-    }
-    
-    //ImGui::SameLine();
     
     ImGui::BeginGroup();
     
-    
-    if (ImPlot::BeginPlot("##wave", ImVec2(-1, 200)/*, ImPlotFlags_Equal*/))
+    if (ImPlot::BeginPlot("##wave left", ImVec2(-1, 150)/*, ImPlotFlags_Equal*/))
     {
-        //ImPlotAxisFlags axis_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight;
-        //ImPlot::SetupAxes(0, 0, axis_flags, axis_flags | ImPlotAxisFlags_Opposite);
-        //ImPlot::SetupAxesLimits(-60, 6, -60, 6);
+        ImPlotAxisFlags axis_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight | ImPlotAxisFlags_NoDecorations;
+        ImPlot::SetupAxes(0, 0, axis_flags, axis_flags | ImPlotAxisFlags_Opposite);
+        ImPlot::SetupAxesLimits(0, 1024, -1.0, 1.0);
         
         {
-            //ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 2);
-            std::uint32_t cnt = _effect->read_in_wave(_wave, 4410);
-            //net_log_debug("cnt:%d\n", cnt);
-            ImPlot::PlotLine("##in wave", _wave, cnt);
-            //ImPlot::PopStyleVar();
+            std::uint32_t cnt = _effect->read_in_wave(0, _wave, 1024);
+            ImPlot::PlotLine("##wave left in", _wave, cnt);
+            
+            cnt = _effect->read_out_wave(0, _wave, 1024);
+            ImPlot::PlotLine("##wave left out", _wave, cnt);
+            
         }
-        
         ImPlot::EndPlot();
     }
     
+    if (ImPlot::BeginPlot("##wave right", ImVec2(-1, 150)))
+    {
+        ImPlotAxisFlags axis_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight | ImPlotAxisFlags_NoDecorations;
+        ImPlot::SetupAxes(0, 0, axis_flags, axis_flags | ImPlotAxisFlags_Opposite);
+        ImPlot::SetupAxesLimits(0, 1024, -1.0, 1.0);
+        
+        {
+            std::uint32_t cnt = _effect->read_in_wave(1, _wave, 1024);
+            ImPlot::PlotLine("##wave right in", _wave, cnt);
+            
+            cnt = _effect->read_out_wave(1, _wave, 1024);
+            ImPlot::PlotLine("##wave right out", _wave, cnt);
+            
+        }
+        ImPlot::EndPlot();
+    }
     ImGui::EndGroup();
     
     

@@ -7,7 +7,7 @@
 #include <assert.h>
 #include "compressor.h"
 #include "level_meter.h"
-#include "ring_buffer.h"
+#include "wave_view.h"
 #include "pluginterfaces/vst2.x/audioeffectx.h"
 #include "SvfLinearTrapOptimised2.hpp"
 
@@ -116,7 +116,8 @@ public:
     std::int32_t get_ratio_map(float *map_in, float *map_out, float min, float max, float setup, std::int32_t buf_size);
     void get_lv_meter_info(lv_meter info[2]);
     
-    std::uint32_t read_in_wave(float *buf, std::uint32_t max_cnt);
+    std::uint32_t read_in_wave(std::uint32_t ch, float *buf, std::uint32_t max_cnt);
+    std::uint32_t read_out_wave(std::uint32_t ch, float *buf, std::uint32_t max_cnt);
 private:
     void _set_patameter(std::int32_t idx, float value);
     
@@ -150,10 +151,8 @@ private:
     std::int32_t _detector;
     level_meter _in_meter[2];
     level_meter _out_meter[2];
-    ring_buffer _ring_buffer[2];
-    std::uint32_t _ring_cnt = 0;
-    float _max = -1.0;
-    float _min = 1.0;
+    wave_view _wave_view_in[2];
+    wave_view _wave_view_out[2];
 };
 
 #endif

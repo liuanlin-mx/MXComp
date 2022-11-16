@@ -30,6 +30,7 @@ bool plugin_editor::open(void* ptr)
     {
         _effect->get_patameter(i, _parameter[i]);
     }
+    return true;
 }
 
 void plugin_editor::draw(std::int32_t w, std::int32_t h)
@@ -230,7 +231,7 @@ void plugin_editor::_draw_meter()
             std::int32_t idx = 0;
             float max = std::max(info[0].in_rms_db, info[1].in_rms_db);
             
-            for (; idx < _ratio_map_count; idx++)
+            for (; idx < (std::int32_t)_ratio_map_count; idx++)
             {
                 if (_ratio_map_in[idx] >= max)
                 {
@@ -289,7 +290,7 @@ void plugin_editor::_draw_wave()
         ImPlot::SetupAxesLimits(0, 1024, -1.0, 1.0);
         
         ImPlot::SetupAxis(ImAxis_Y2, NULL, ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight | ImPlotAxisFlags_Lock
-                                            | ImPlotAxisFlags_NoLabel | ImPlotAxisFlags_NoTickMarks);
+                                            | ImPlotAxisFlags_NoLabel | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_Opposite);
         ImPlot::SetupAxisLimits(ImAxis_Y2, -18, 0);
         
         {
@@ -321,7 +322,7 @@ void plugin_editor::_draw_wave()
         ImPlot::SetupAxesLimits(0, 1024, -1.0, 1.0);
         
         ImPlot::SetupAxis(ImAxis_Y2, NULL, ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight | ImPlotAxisFlags_Lock
-                                            | ImPlotAxisFlags_NoLabel | ImPlotAxisFlags_NoTickMarks);
+                                            | ImPlotAxisFlags_NoLabel | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_Opposite);
         ImPlot::SetupAxisLimits(ImAxis_Y2, -18, 0);
         
         {

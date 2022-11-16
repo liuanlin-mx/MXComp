@@ -20,6 +20,8 @@ private:
     std::uint32_t _idx;
     float *_data;
     float _sum;
+    float _sum_sub;
+    std::uint32_t _cnt;
 };
 
 #endif

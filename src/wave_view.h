@@ -16,6 +16,7 @@ public:
         _gain_db = gain_db;
     }
     void put_sample(float v);
+    void put_sample_db(float v);
     std::uint32_t read_wave(float *buf, std::uint32_t max_cnt);
     
 private:
@@ -23,8 +24,8 @@ private:
     std::uint32_t _sample_rate = 44100;
     std::uint32_t _window_size = 1024;
     float _duration = 10;
-    float _max = -1.0;
-    float _min = 1.0;
+    float _max = -1000.0;
+    float _min = 1000.0;
     std::uint32_t _count = 0;
     std::uint32_t _skip = 0;
     float _gain_db = 0;

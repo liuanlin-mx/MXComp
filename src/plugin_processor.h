@@ -119,6 +119,7 @@ public:
     
     std::uint32_t read_in_wave(std::uint32_t ch, float *buf, std::uint32_t max_cnt);
     std::uint32_t read_out_wave(std::uint32_t ch, float *buf, std::uint32_t max_cnt);
+    std::uint32_t read_gr_wave(std::uint32_t ch, float *buf, std::uint32_t max_cnt);
 private:
     void _set_patameter(std::int32_t idx, float value);
     
@@ -155,6 +156,7 @@ private:
     level_meter _out_meter[2];
     wave_view _wave_view_in[2];
     wave_view _wave_view_out[2];
+    wave_view _gr_view[2];
 };
 
 #endif

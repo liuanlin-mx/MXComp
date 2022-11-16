@@ -54,6 +54,9 @@ void plugin_processor::processReplacing(float** inputs, float** outputs, VstInt3
         float left = in1[i];
         float right = in2[i];
         
+        _wave_view_in[0].put_sample(left);
+        _wave_view_in[1].put_sample(right);
+        
         if (_min_freq > 20)
         {
             left = _svf_filter_hp[0].tick(left);
@@ -65,9 +68,6 @@ void plugin_processor::processReplacing(float** inputs, float** outputs, VstInt3
             left = _svf_filter_lp[0].tick(left);
             right = _svf_filter_lp[1].tick(right);
         }
-        
-        _wave_view_in[0].put_sample(left);
-        _wave_view_in[1].put_sample(right);
         
         
 
@@ -122,8 +122,12 @@ void plugin_processor::processReplacing(float** inputs, float** outputs, VstInt3
         
         _wave_view_out[0].put_sample(out1[i]);
         _wave_view_out[1].put_sample(out2[i]);
+        _gr_view[0].put_sample(_comp[0].get_gr_db());
+        _gr_view[1].put_sample(_comp[1].get_gr_db());
         _out_meter[0].put(out1[i]);
         _out_meter[1].put(out2[i]);
+        
+        
     }
 }
 
@@ -145,7 +149,9 @@ void plugin_processor::setSampleRate(float sample_rate)
     _wave_view_in[1].set_sample_rate(sample_rate);
     _wave_view_out[0].set_sample_rate(sample_rate);
     _wave_view_out[1].set_sample_rate(sample_rate);
-    
+    _gr_view[0].set_sample_rate(sample_rate);
+    _gr_view[1].set_sample_rate(sample_rate);
+        
     _svf_filter_lp[0].resetState();
     _svf_filter_lp[0].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
     _svf_filter_lp[1].resetState();
@@ -296,6 +302,15 @@ std::uint32_t plugin_processor::read_out_wave(std::uint32_t ch, float *buf, std:
     return 0;
 }
 
+std::uint32_t plugin_processor::read_gr_wave(std::uint32_t ch, float *buf, std::uint32_t max_cnt)
+{
+    if (ch < 2)
+    {
+        return _gr_view[ch].read_wave(buf, max_cnt);
+    }
+    return 0;
+}
+
 void plugin_processor::_set_patameter(std::int32_t idx, float value)
 {
     switch (idx)
@@ -395,6 +410,8 @@ void plugin_processor::_set_patameter(std::int32_t idx, float value)
             _wave_view_in[1].set_duration(value);
             _wave_view_out[0].set_duration(value);
             _wave_view_out[1].set_duration(value);
+            _gr_view[0].set_duration(value);
+            _gr_view[1].set_duration(value);
             break;
         }
     }

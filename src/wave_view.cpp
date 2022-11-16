@@ -48,8 +48,30 @@ void wave_view::put_sample(float v)
         _count = 0;
         _ring_buffer.put(_max);
         _ring_buffer.put(_min);
-        _max = -1.0;
-        _min = 1.0;
+        _max = -1000.0;
+        _min = 1000.0;
+    }
+}
+
+void wave_view::put_sample_db(float v)
+{
+    if (v > _max)
+    {
+        _max = v;
+    }
+        
+    if (v < _min)
+    {
+        _min = v;
+    }
+    
+    if (++_count >= _skip)
+    {
+        _count = 0;
+        _ring_buffer.put(_max);
+        _ring_buffer.put(_min);
+        _max = -1000.0;
+        _min = 1000.0;
     }
 }
 

@@ -284,9 +284,13 @@ void plugin_editor::_draw_wave()
     
     if (ImPlot::BeginPlot("##wave left", ImVec2(-1, 150)/*, ImPlotFlags_Equal*/))
     {
-        ImPlotAxisFlags axis_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight | ImPlotAxisFlags_NoDecorations;
-        ImPlot::SetupAxes(0, 0, axis_flags, axis_flags | ImPlotAxisFlags_Opposite);
+        ImPlotAxisFlags axis_flags =  ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight | ImPlotAxisFlags_NoDecorations;
+        ImPlot::SetupAxes(0, 0, axis_flags, axis_flags | ImPlotAxisFlags_Lock | ImPlotAxisFlags_Opposite);
         ImPlot::SetupAxesLimits(0, 1024, -1.0, 1.0);
+        
+        ImPlot::SetupAxis(ImAxis_Y2, NULL, ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight | ImPlotAxisFlags_Lock
+                                            | ImPlotAxisFlags_NoLabel | ImPlotAxisFlags_NoTickMarks);
+        ImPlot::SetupAxisLimits(ImAxis_Y2, -18, 0);
         
         {
             std::uint32_t cnt = _effect->read_in_wave(0, _wave, 1024);
@@ -294,8 +298,19 @@ void plugin_editor::_draw_wave()
             
             cnt = _effect->read_out_wave(0, _wave, 1024);
             ImPlot::PlotLine("##wave left out", _wave, cnt);
-            
         }
+        
+        {
+            ImPlot::SetAxis(ImAxis_Y2);
+            std::uint32_t cnt = _effect->read_gr_wave(0, _wave, 1024);
+            for (std::uint32_t i = 0; i < cnt; i++)
+            {
+                _wave[i] = -_wave[i];
+            }
+            ImPlot::PlotLine("##gr left", _wave, cnt);
+        }
+        
+        
         ImPlot::EndPlot();
     }
     
@@ -305,6 +320,10 @@ void plugin_editor::_draw_wave()
         ImPlot::SetupAxes(0, 0, axis_flags, axis_flags | ImPlotAxisFlags_Opposite);
         ImPlot::SetupAxesLimits(0, 1024, -1.0, 1.0);
         
+        ImPlot::SetupAxis(ImAxis_Y2, NULL, ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight | ImPlotAxisFlags_Lock
+                                            | ImPlotAxisFlags_NoLabel | ImPlotAxisFlags_NoTickMarks);
+        ImPlot::SetupAxisLimits(ImAxis_Y2, -18, 0);
+        
         {
             std::uint32_t cnt = _effect->read_in_wave(1, _wave, 1024);
             ImPlot::PlotLine("##wave right in", _wave, cnt);
@@ -313,6 +332,17 @@ void plugin_editor::_draw_wave()
             ImPlot::PlotLine("##wave right out", _wave, cnt);
             
         }
+        
+        {
+            ImPlot::SetAxis(ImAxis_Y2);
+            std::uint32_t cnt = _effect->read_gr_wave(1, _wave, 1024);
+            for (std::uint32_t i = 0; i < cnt; i++)
+            {
+                _wave[i] = -_wave[i];
+            }
+            ImPlot::PlotLine("##gr right", _wave, cnt);
+        }
+        
         ImPlot::EndPlot();
     }
     ImGui::EndGroup();

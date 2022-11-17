@@ -10,6 +10,7 @@
 #include "wave_view.h"
 #include "pluginterfaces/vst2.x/audioeffectx.h"
 #include "SvfLinearTrapOptimised2.hpp"
+#include "eq_analysis.h"
 
 class plugin_processor : public AudioEffectX
 {
@@ -120,6 +121,8 @@ public:
     std::uint32_t read_in_wave(std::uint32_t ch, float *buf, std::uint32_t max_cnt);
     std::uint32_t read_out_wave(std::uint32_t ch, float *buf, std::uint32_t max_cnt);
     std::uint32_t read_gr_wave(std::uint32_t ch, float *buf, std::uint32_t max_cnt);
+    std::uint32_t get_eq_curve(float *curve, float *scale, std::uint32_t max_cnt);
+    
 private:
     void _set_patameter(std::int32_t idx, float value);
     
@@ -135,9 +138,9 @@ private:
         parameter{"rms", "ms", 10000, 0, 1000, 5},
         parameter{"pre", "ms", 10000, 0, 1000, 0},
         parameter{"detector", "", 10, 0, DETECTOR_NUM, 0},
-        parameter{"hp freq", "Hz", 20000, 1, 20000, 20},
+        parameter{"hp freq", "Hz", 20000, 1, 20000, 0},
         parameter{"lp freq", "Hz", 20000, 1, 20000, 20000},
-        parameter{"filter q", "", 3200, 0.025, 40, 0.5},
+        parameter{"filter q", "", 3200, 0.025, 40, 0.7},
         parameter{"duration", "", 100, 1, 60, 15},
     };
     
@@ -146,17 +149,19 @@ private:
     std::mutex _mtx;
     float _sample_rate = 44100.;
     compressor _comp[2];
-    SvfLinearTrapOptimised2 _svf_filter_lp[2];
-    SvfLinearTrapOptimised2 _svf_filter_hp[2];
+    SvfLinearTrapOptimised2 _svf_filter_lp[3];
+    SvfLinearTrapOptimised2 _svf_filter_hp[3];
+    eq_analysis _eq_analysis;
     float _max_freq = 20000.;
     float _min_freq = 20.;
-    float _filter_q = 0.5;
+    float _filter_q = 0.7;
     std::int32_t _detector;
     level_meter _in_meter[2];
     level_meter _out_meter[2];
     wave_view _wave_view_in[2];
     wave_view _wave_view_out[2];
     wave_view _gr_view[2];
+    
 };
 
 #endif

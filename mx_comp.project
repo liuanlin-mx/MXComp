@@ -40,6 +40,10 @@
     <File Name="implot/implot.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="src">
+    <File Name="src/eq_analysis.cpp"/>
+    <File Name="src/eq_analysis.h"/>
+    <File Name="src/fft.cpp"/>
+    <File Name="src/fft.h"/>
     <File Name="src/wave_view.h"/>
     <File Name="src/wave_view.cpp"/>
     <File Name="src/SvfLinearTrapOptimised2.hpp"/>
@@ -185,7 +189,7 @@
         <IncludePath Value="implot"/>
         <Preprocessor Value="GLFW_EXPOSE_NATIVE_X11"/>
       </Compiler>
-      <Linker Options="-static-libstdc++;-static-libgcc" Required="yes">
+      <Linker Options="-static-libstdc++;-static-libgcc;-Wl,--no-undefined;-Wl,-Bsymbolic;-Wl,-Bstatic;-lfftw3f;-Wl,-Bdynamic;-fPIC" Required="yes">
         <Library Value="glfw"/>
         <Library Value="OpenGL"/>
         <Library Value="X11"/>

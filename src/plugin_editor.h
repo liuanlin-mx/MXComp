@@ -23,8 +23,7 @@ private:
         return 20. * log10(v);
     }
     
-    void _draw_comp();
-    void _draw_filter();
+    void _draw_knob();
     void _draw_meter();
     void _draw_wave();
     
@@ -36,6 +35,11 @@ private:
     float _ratio_map_in[1024];
     float _ratio_map_out[1024];
     std::uint32_t _ratio_map_count;
+    
+    float _eq_curve[4096];
+    float _eq_freq_scale[4096];
+    std::uint32_t _eq_count;
+    
     float _update_time;
     float _wave[1024];
     float _duration = 10;

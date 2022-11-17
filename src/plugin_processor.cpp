@@ -24,9 +24,12 @@ plugin_processor::plugin_processor(audioMasterCallback audio_master)
     
     _svf_filter_lp[0].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
     _svf_filter_lp[1].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
+    _svf_filter_lp[2].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
     
     _svf_filter_hp[0].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
     _svf_filter_hp[1].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
+    _svf_filter_hp[2].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
+    _eq_analysis.set_sample_rate(_sample_rate);
     
     for (std::int32_t i = 0; i < PARAMETER_NUM; i++)
     {
@@ -57,7 +60,7 @@ void plugin_processor::processReplacing(float** inputs, float** outputs, VstInt3
         _wave_view_in[0].put_sample(left);
         _wave_view_in[1].put_sample(right);
         
-        if (_min_freq > 20)
+        if (_min_freq > 0)
         {
             left = _svf_filter_hp[0].tick(left);
             right = _svf_filter_hp[1].tick(right);
@@ -144,6 +147,8 @@ void plugin_processor::setSampleRate(float sample_rate)
     AudioEffect::setSampleRate(sample_rate);
     _comp[0].set_sample_rate(sample_rate);
     _comp[1].set_sample_rate(sample_rate);
+    _comp[2].set_sample_rate(sample_rate);
+    _eq_analysis.set_sample_rate(sample_rate);
     
     _wave_view_in[0].set_sample_rate(sample_rate);
     _wave_view_in[1].set_sample_rate(sample_rate);
@@ -156,11 +161,17 @@ void plugin_processor::setSampleRate(float sample_rate)
     _svf_filter_lp[0].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
     _svf_filter_lp[1].resetState();
     _svf_filter_lp[1].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
+    _svf_filter_lp[2].resetState();
+    _svf_filter_lp[2].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
     
     _svf_filter_hp[0].resetState();
     _svf_filter_hp[0].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
     _svf_filter_hp[1].resetState();
     _svf_filter_hp[1].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
+    _svf_filter_hp[2].resetState();
+    _svf_filter_hp[2].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
+    
+    _eq_analysis.set_sample_rate(_sample_rate);
 }
     
 void plugin_processor::setProgramName(char* name)
@@ -311,6 +322,27 @@ std::uint32_t plugin_processor::read_gr_wave(std::uint32_t ch, float *buf, std::
     return 0;
 }
 
+std::uint32_t plugin_processor::get_eq_curve(float *curve, float *scale, std::uint32_t max_cnt)
+{
+    
+    std::uint32_t sample_len = _eq_analysis.get_sample_len();
+    for (std::uint32_t i = 0; i < sample_len; i++)
+    {
+        _eq_analysis.set_sample(i, _svf_filter_hp[2].tick(_svf_filter_lp[2].tick(_eq_analysis.get_sample(i))));
+    }
+    _eq_analysis.analysis();
+    if (max_cnt > _eq_analysis.get_result_len())
+    {
+        max_cnt = _eq_analysis.get_result_len();
+    }
+    for (std::uint32_t i = 0; i < max_cnt; i++)
+    {
+        curve[i] = _eq_analysis.get_db()[i];
+        scale[i] = _eq_analysis.get_freq_scale()[i];
+    }
+    return max_cnt;
+}
+
 void plugin_processor::_set_patameter(std::int32_t idx, float value)
 {
     switch (idx)
@@ -379,6 +411,8 @@ void plugin_processor::_set_patameter(std::int32_t idx, float value)
             _svf_filter_hp[0].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
             _svf_filter_hp[1].resetState();
             _svf_filter_hp[1].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
+            _svf_filter_hp[2].resetState();
+            _svf_filter_hp[2].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
             break;
         }
         case PARAMETER_IDX_FILTER_LP_FREQ:
@@ -388,6 +422,8 @@ void plugin_processor::_set_patameter(std::int32_t idx, float value)
             _svf_filter_lp[0].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
             _svf_filter_lp[1].resetState();
             _svf_filter_lp[1].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
+            _svf_filter_lp[2].resetState();
+            _svf_filter_lp[2].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
             break;
         }
         case PARAMETER_IDX_FILTER_Q:
@@ -397,11 +433,15 @@ void plugin_processor::_set_patameter(std::int32_t idx, float value)
             _svf_filter_hp[0].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
             _svf_filter_hp[1].resetState();
             _svf_filter_hp[1].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
+            _svf_filter_hp[2].resetState();
+            _svf_filter_hp[2].updateCoefficients(_min_freq, _filter_q, SvfLinearTrapOptimised2::HIGH_PASS_FILTER, _sample_rate);
             
             _svf_filter_lp[0].resetState();
             _svf_filter_lp[0].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
             _svf_filter_lp[1].resetState();
             _svf_filter_lp[1].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
+            _svf_filter_lp[2].resetState();
+            _svf_filter_lp[2].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
             break;
         }
         case PARAMETER_IDX_WAVE_VIEW_DURATION:

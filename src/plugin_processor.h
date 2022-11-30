@@ -11,6 +11,7 @@
 #include "pluginterfaces/vst2.x/audioeffectx.h"
 #include "SvfLinearTrapOptimised2.hpp"
 #include "eq_analysis.h"
+#include "fft_view.h"
 
 class plugin_processor : public AudioEffectX
 {
@@ -30,6 +31,7 @@ public:
         PARAMETER_IDX_FILTER_LP_FREQ,
         PARAMETER_IDX_FILTER_Q,
         PARAMETER_IDX_WAVE_VIEW_DURATION,
+        PARAMETER_IDX_SHOW_FFT,
         PARAMETER_NUM,
     };
     
@@ -123,6 +125,9 @@ public:
     std::uint32_t read_gr_wave(std::uint32_t ch, float *buf, std::uint32_t max_cnt);
     std::uint32_t get_eq_curve(float *curve, float *scale, std::uint32_t max_cnt);
     
+    std::int32_t get_fft_image_width(std::uint32_t ch);
+    std::int32_t get_fft_image_height(std::uint32_t ch);
+    void read_fft_image(std::uint32_t ch, std::uint8_t *image);
 private:
     void _set_patameter(std::int32_t idx, float value);
     
@@ -142,6 +147,7 @@ private:
         parameter{"lp freq", "Hz", 20000, 1, 20000, 20000},
         parameter{"filter q", "", 3200, 0.025, 40, 0.7},
         parameter{"duration", "", 100, 1, 60, 15},
+        parameter{"show fft", "", 1, 0, 1, 0},
     };
     
     char _program_name[kVstMaxProgNameLen + 1];
@@ -161,6 +167,8 @@ private:
     wave_view _wave_view_in[2];
     wave_view _wave_view_out[2];
     wave_view _gr_view[2];
+    fft_view _fft_view[2];
+    bool _show_fft = false;
     
 };
 

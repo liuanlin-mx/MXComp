@@ -23,6 +23,8 @@ public:
     virtual void close();
     virtual void idle();
     
+    virtual void draw_init() {}
+    virtual void draw_uninit() {}
     virtual void draw(std::int32_t w, std::int32_t h);
     
 protected:

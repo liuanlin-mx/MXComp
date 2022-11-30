@@ -23,16 +23,23 @@ plugin_editor::~plugin_editor()
 }
 
 
-bool plugin_editor::open(void* ptr)
+void plugin_editor::draw_init()
 {
-    imgui_vst_editor::open(ptr);
-    
     for (std::int32_t i = 0; i < plugin_processor::PARAMETER_NUM; i++)
     {
         _effect->get_patameter(i, _parameter[i]);
     }
-    return true;
+    _texture[0].init();
+    _texture[1].init();
 }
+
+
+void plugin_editor::draw_uninit()
+{
+    _texture[0].uninit();
+    _texture[1].uninit();
+}
+
 
 void plugin_editor::draw(std::int32_t w, std::int32_t h)
 {
@@ -56,8 +63,15 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
     ImGui::SameLine();
     _draw_meter();
     
-    _draw_wave();
-    
+    std::int32_t idx = plugin_processor::PARAMETER_IDX_SHOW_FFT;
+    if (_parameter[idx].value > 0.5)
+    {
+        _draw_spectrum();
+    }
+    else
+    {
+        _draw_wave();
+    }
     ImGui::End();
     
     ImPlot::SetCurrentContext(NULL);
@@ -164,10 +178,22 @@ void plugin_editor::_draw_knob()
     }
     
     {
-        ImGui::PushItemWidth(290);
+        ImGui::PushItemWidth(200);
         std::int32_t idx = plugin_processor::PARAMETER_IDX_WAVE_VIEW_DURATION;
         if (ImGui::SliderFloat("##duration", &_parameter[idx].value, 1, 60, "%.0f"))
         {
+            _effect->set_patameter(idx, _parameter[idx].value);
+        }
+        ImGui::PopItemWidth();
+    }
+    ImGui::SameLine();
+    {
+        ImGui::PushItemWidth(90);
+        std::int32_t idx = plugin_processor::PARAMETER_IDX_SHOW_FFT;
+        bool v = _parameter[idx].value > 0.5;
+        if (ImGui::Checkbox(_parameter[idx].name.c_str(), &v))
+        {
+            _parameter[idx].value = v? 1: 0;
             _effect->set_patameter(idx, _parameter[idx].value);
         }
         ImGui::PopItemWidth();
@@ -426,6 +452,81 @@ void plugin_editor::_draw_wave()
             }
             ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 2);
             ImPlot::PlotLine("##gr right", _wave, cnt);
+            ImPlot::PopStyleVar();
+        }
+        
+        ImPlot::EndPlot();
+    }
+    ImGui::EndGroup();
+}
+
+
+void plugin_editor::_draw_spectrum()
+{
+    ImGui::BeginGroup();
+    
+    if (ImPlot::BeginPlot("##spectrum left", ImVec2(-1, 130)/*, ImPlotFlags_Equal*/))
+    {
+        ImPlotAxisFlags axis_flags =  ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight | ImPlotAxisFlags_NoDecorations;
+        ImPlot::SetupAxes(0, 0, axis_flags, axis_flags | ImPlotAxisFlags_Lock | ImPlotAxisFlags_Opposite);
+        ImPlot::SetupAxesLimits(0, 1, 0, 1.0);
+        
+        ImPlot::SetupAxis(ImAxis_Y2, NULL, ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight | ImPlotAxisFlags_Lock
+                                            | ImPlotAxisFlags_NoLabel | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_Opposite);
+        ImPlot::SetupAxisLimits(ImAxis_Y2, -18, 0);
+        
+        {
+            _effect->read_fft_image(0, _rgb);
+            ImTextureID texture = (ImTextureID)_texture[0].load(_rgb, _effect->get_fft_image_width(0), _effect->get_fft_image_height(0));
+            static ImVec2 bmin(0, 0);
+            static ImVec2 bmax(1, 1);
+            ImPlot::PlotImage("##fft left", texture, bmin, bmax);
+        }
+        
+        {
+            ImPlot::SetAxis(ImAxis_Y2);
+            std::uint32_t cnt = _effect->read_gr_wave(0, _wave, 1024);
+            for (std::uint32_t i = 0; i < cnt; i++)
+            {
+                _wave[i] = -_wave[i];
+            }
+            ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 2);
+            ImPlot::PlotLine("##gr left", _wave, cnt, 1. / cnt);
+            ImPlot::PopStyleVar();
+        }
+        
+        
+        ImPlot::EndPlot();
+    }
+    
+    if (ImPlot::BeginPlot("##spectrum right", ImVec2(-1, 130)))
+    {
+        ImPlotAxisFlags axis_flags = ImPlotAxisFlags_Lock | ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight | ImPlotAxisFlags_NoDecorations;
+        ImPlot::SetupAxes(0, 0, axis_flags, axis_flags | ImPlotAxisFlags_Opposite);
+        ImPlot::SetupAxesLimits(0, 1.0, 0, 1.0);
+        
+        ImPlot::SetupAxis(ImAxis_Y2, NULL, ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_NoHighlight | ImPlotAxisFlags_Lock
+                                            | ImPlotAxisFlags_NoLabel | ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_Opposite);
+        ImPlot::SetupAxisLimits(ImAxis_Y2, -18, 0);
+        
+        
+        {
+            _effect->read_fft_image(1, _rgb);
+            ImTextureID texture = (ImTextureID)_texture[1].load(_rgb, _effect->get_fft_image_width(1), _effect->get_fft_image_height(1));
+            static ImVec2 bmin(0, 0);
+            static ImVec2 bmax(1, 1);
+            ImPlot::PlotImage("##fft right", texture, bmin, bmax);
+        }
+        
+        {
+            ImPlot::SetAxis(ImAxis_Y2);
+            std::uint32_t cnt = _effect->read_gr_wave(1, _wave, 1024);
+            for (std::uint32_t i = 0; i < cnt; i++)
+            {
+                _wave[i] = -_wave[i];
+            }
+            ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 2);
+            ImPlot::PlotLine("##gr right", _wave, cnt, 1. / cnt);
             ImPlot::PopStyleVar();
         }
         

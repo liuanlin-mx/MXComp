@@ -4,6 +4,7 @@
 #include "imgui_vst_backend/imgui_vst_editor.h"
 #include "plugin_processor.h"
 #include "implot.h"
+#include "rgb2texture.h"
 
 
 class plugin_processor;
@@ -14,7 +15,8 @@ public:
     ~plugin_editor();
     
 private:
-    virtual bool open(void* ptr);
+    virtual void draw_init();
+    virtual void draw_uninit();
     virtual void draw(std::int32_t w, std::int32_t h);
     
 private:
@@ -26,6 +28,7 @@ private:
     void _draw_knob();
     void _draw_meter();
     void _draw_wave();
+    void _draw_spectrum();
     
 private:
     plugin_processor *_effect;
@@ -43,5 +46,7 @@ private:
     float _update_time;
     float _wave[1024];
     float _duration = 10;
+    rgb2texture _texture[2];
+    std::uint8_t _rgb[640 * 480 * 3];
 };
 #endif

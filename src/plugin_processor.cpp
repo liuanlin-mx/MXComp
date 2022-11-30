@@ -130,6 +130,12 @@ void plugin_processor::processReplacing(float** inputs, float** outputs, VstInt3
         _out_meter[0].put(out1[i]);
         _out_meter[1].put(out2[i]);
         
+        if (_show_fft)
+        {
+            _fft_view[0].put_sample(out1[i]);
+            _fft_view[1].put_sample(out2[i]);
+        }
+        
         
     }
 }
@@ -156,6 +162,8 @@ void plugin_processor::setSampleRate(float sample_rate)
     _wave_view_out[1].set_sample_rate(sample_rate);
     _gr_view[0].set_sample_rate(sample_rate);
     _gr_view[1].set_sample_rate(sample_rate);
+    _fft_view[0].set_sample_rate(sample_rate);
+    _fft_view[1].set_sample_rate(sample_rate);
         
     _svf_filter_lp[0].resetState();
     _svf_filter_lp[0].updateCoefficients(_max_freq, _filter_q, SvfLinearTrapOptimised2::LOW_PASS_FILTER, _sample_rate);
@@ -324,7 +332,6 @@ std::uint32_t plugin_processor::read_gr_wave(std::uint32_t ch, float *buf, std::
 
 std::uint32_t plugin_processor::get_eq_curve(float *curve, float *scale, std::uint32_t max_cnt)
 {
-    
     std::uint32_t sample_len = _eq_analysis.get_sample_len();
     for (std::uint32_t i = 0; i < sample_len; i++)
     {
@@ -343,6 +350,32 @@ std::uint32_t plugin_processor::get_eq_curve(float *curve, float *scale, std::ui
     return max_cnt;
 }
 
+std::int32_t plugin_processor::get_fft_image_width(std::uint32_t ch)
+{
+    if (ch < 2)
+    {
+        return _fft_view[ch].get_image_width();
+    }
+    return 0;
+}
+
+std::int32_t plugin_processor::get_fft_image_height(std::uint32_t ch)
+{
+    if (ch < 2)
+    {
+        return _fft_view[ch].get_image_height();
+    }
+    return 0;
+}
+
+void plugin_processor::read_fft_image(std::uint32_t ch, std::uint8_t *image)
+{
+    if (ch < 2)
+    {
+        return _fft_view[ch].read_rgb_image(image);
+    }
+}
+    
 void plugin_processor::_set_patameter(std::int32_t idx, float value)
 {
     switch (idx)
@@ -452,6 +485,13 @@ void plugin_processor::_set_patameter(std::int32_t idx, float value)
             _wave_view_out[1].set_duration(value);
             _gr_view[0].set_duration(value);
             _gr_view[1].set_duration(value);
+            _fft_view[0].set_duration(value);
+            _fft_view[1].set_duration(value);
+            break;
+        }
+        case PARAMETER_IDX_SHOW_FFT:
+        {
+            _show_fft = value > 0.5;
             break;
         }
     }

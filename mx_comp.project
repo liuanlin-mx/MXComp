@@ -40,6 +40,10 @@
     <File Name="implot/implot.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="src">
+    <File Name="src/rgb2texture.h"/>
+    <File Name="src/rgb2texture.cpp"/>
+    <File Name="src/fft_view.cpp"/>
+    <File Name="src/fft_view.h"/>
     <File Name="src/eq_analysis.cpp"/>
     <File Name="src/eq_analysis.h"/>
     <File Name="src/fft.cpp"/>

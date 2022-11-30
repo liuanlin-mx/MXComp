@@ -159,6 +159,7 @@ void imgui_vst_editor::_run()
         }
         _create_window_opengl();
         _setup_imgui();
+        draw_init();
     }
     
     GLFWwindow *window = _window;
@@ -223,6 +224,8 @@ void imgui_vst_editor::_run()
 
     std::lock_guard<std::mutex> l(_global_lock);
     ImGui::SetCurrentContext(_imgui_ctx);
+    
+    draw_uninit();
     
     // Cleanup
     ImGui_ImplOpenGL2_Shutdown();

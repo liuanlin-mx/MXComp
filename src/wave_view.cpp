@@ -4,7 +4,7 @@
 wave_view::wave_view()
 {
     _ring_buffer.set_max_size(_window_size);
-    _skip = _duration * _sample_rate / _window_size;
+    _skip = 2 * _duration * _sample_rate / _window_size;
 }
 
 wave_view::~wave_view()
@@ -15,19 +15,19 @@ void wave_view::set_window_size(std::uint32_t window_size)
 {
     _window_size = window_size;
     _ring_buffer.set_max_size(_window_size);
-    _skip = _duration * _sample_rate / _window_size;
+    _skip = 2 * _duration * _sample_rate / _window_size;
 }
 
 void wave_view::set_sample_rate(std::uint32_t sample_rate)
 {
     _sample_rate = sample_rate;
-    _skip = _duration * _sample_rate / _window_size;
+    _skip = 2 * _duration * _sample_rate / _window_size;
 }
 
 void wave_view::set_duration(float duration)
 {
     _duration = duration;
-    _skip = _duration * _sample_rate / _window_size;
+    _skip = 2 * _duration * _sample_rate / _window_size;
 }
 
 void wave_view::put_sample(float v)

@@ -60,6 +60,11 @@ void fft::calc_fft(const float *data, std::uint32_t datalen)
 }
 
 
+void fft::calc_fft(std::uint32_t datalen)
+{
+    calc_fft(_fft_data_in, datalen);
+}
+
 void fft::calc_power()
 {
 

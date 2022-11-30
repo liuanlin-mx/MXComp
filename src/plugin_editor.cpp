@@ -56,7 +56,6 @@ void plugin_editor::draw(std::int32_t w, std::int32_t h)
             
     ImGui::SetWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::SetWindowSize(ImVec2(w, h), ImGuiCond_Always);
-    ImPlot::CreateContext();
     
     _draw_knob();
     

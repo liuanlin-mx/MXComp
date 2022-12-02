@@ -2,7 +2,7 @@
 <CodeLite_Project Name="mx_comp" Version="11000" InternalType="Console">
   <Plugins>
     <Plugin Name="qmake">
-      <![CDATA[00030001N0005Debug0000000000000001N0009linux_vst0000000000000001N0015linux_vst_cmake000000000000]]>
+      <![CDATA[00050001N0005Debug0000000000000001N0009linux_vst0000000000000001N0015linux_vst_cmake0000000000000001N0015win32_vst_cmake0000000000000001N0009win64_vst000000000000]]>
     </Plugin>
   </Plugins>
   <VirtualDirectory Name="pluginterfaces">
@@ -165,6 +165,122 @@
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="" IntermediateDirectory="" Command="$(WorkspacePath)/cmake-build-$(WorkspaceConfiguration)/output/$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(WorkspacePath)/cmake-build-$(WorkspaceConfiguration)/output" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <BuildSystem Name="CMake"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+    <Configuration Name="win32_vst" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Dynamic Library" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-fPIC;-Os;-O2;-Wall" C_Options="-fPIC;-Os;-O2;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="1">
+        <IncludePath Value="."/>
+        <IncludePath Value="src"/>
+        <IncludePath Value="imgui"/>
+        <IncludePath Value="imgui_vst_backend"/>
+        <IncludePath Value="imgui-knobs"/>
+        <IncludePath Value="implot"/>
+        <Preprocessor Value="GLFW_EXPOSE_NATIVE_WIN32"/>
+      </Compiler>
+      <Linker Options="-static;-s;-mwindows;-fPIC" Required="yes">
+        <Library Value="gdi32"/>
+        <Library Value="user32"/>
+        <Library Value="opengl32"/>
+        <Library Value="glfw3"/>
+        <Library Value="fftw3f"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(IntermediateDirectory)/lib$(ProjectName).dll" IntermediateDirectory="$(ConfigurationName)" Command="$(OutputFile)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <BuildSystem Name="Default"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+        <DebuggerSearchPaths/>
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no" EnableCpp14="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+    <Configuration Name="win64_vst" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Dynamic Library" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-fPIC;-Os;-O2;-Wall" C_Options="-fPIC;-Os;-O2;-Wall" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="1">
+        <IncludePath Value="."/>
+        <IncludePath Value="src"/>
+        <IncludePath Value="imgui"/>
+        <IncludePath Value="imgui_vst_backend"/>
+        <IncludePath Value="imgui-knobs"/>
+        <IncludePath Value="implot"/>
+        <Preprocessor Value="GLFW_EXPOSE_NATIVE_WIN32"/>
+      </Compiler>
+      <Linker Options="-static;-s;-mwindows;-fPIC" Required="yes">
+        <Library Value="gdi32"/>
+        <Library Value="user32"/>
+        <Library Value="kernel32"/>
+        <Library Value="comctl32"/>
+        <Library Value="winmm"/>
+        <Library Value="uuid"/>
+        <Library Value="wsock32"/>
+        <Library Value="wininet"/>
+        <Library Value="version"/>
+        <Library Value="ole32"/>
+        <Library Value="ws2_32"/>
+        <Library Value="oleaut32"/>
+        <Library Value="imm32"/>
+        <Library Value="comdlg32"/>
+        <Library Value="shlwapi"/>
+        <Library Value="rpcrt4"/>
+        <Library Value="opengl32"/>
+        <Library Value="glfw3"/>
+        <Library Value="fftw3f"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(IntermediateDirectory)/lib$(ProjectName).dll" IntermediateDirectory="$(ConfigurationName)" Command="$(OutputFile)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <BuildSystem Name="Default"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>

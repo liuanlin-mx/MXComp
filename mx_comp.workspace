@@ -10,5 +10,13 @@
       <Environment/>
       <Project Name="mx_comp" ConfigName="linux_vst_cmake"/>
     </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="win64_vst">
+      <Environment/>
+      <Project Name="mx_comp" ConfigName="win64_vst"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="win32_vst">
+      <Environment/>
+      <Project Name="mx_comp" ConfigName="win32_vst"/>
+    </WorkspaceConfiguration>
   </BuildMatrix>
 </CodeLite_Workspace>

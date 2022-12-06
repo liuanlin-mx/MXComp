@@ -14,7 +14,7 @@ plugin_processor::plugin_processor(audioMasterCallback audio_master)
     : AudioEffectX(audio_master, 1, PARAMETER_NUM)	// 1 program, 1 parameter only
     , _detector(0)
 {
-    setNumInputs(2);        // stereo in
+    setNumInputs(3);        // stereo in + side
     setNumOutputs(2);       // stereo out
     setUniqueID('Comp');    // identify
     canProcessReplacing();  // supports replacing output
@@ -46,16 +46,18 @@ plugin_processor::~plugin_processor()
 
 void plugin_processor::processReplacing(float** inputs, float** outputs, VstInt32 sample_frames)
 {
-    float* in1  =  inputs[0];
-    float* in2  =  inputs[1];
-    float* out1 = outputs[0];
-    float* out2 = outputs[1];
+    float *in1  =  inputs[0];
+    float *in2  =  inputs[1];
+    float *in3 =  inputs[2];
+    float *out1 = outputs[0];
+    float *out2 = outputs[1];
 
     std::lock_guard<std::mutex> l(_mtx);
     for (std::int32_t i = 0; i < sample_frames; i++)
     {
         float left = in1[i];
         float right = in2[i];
+        float side = in3[i];
         
         _wave_view_in[0].put_sample(left);
         _wave_view_in[1].put_sample(right);
@@ -73,9 +75,12 @@ void plugin_processor::processReplacing(float** inputs, float** outputs, VstInt3
         }
         
         
-
-        _in_meter[0].put(left);
-        _in_meter[1].put(right);
+        if (_detector != DETECTOR_SIDE)
+        {
+            _in_meter[0].put(left);
+            _in_meter[1].put(right);
+        }
+        
         switch (_detector)
         {
             case DETECTOR_LR:
@@ -112,6 +117,10 @@ void plugin_processor::processReplacing(float** inputs, float** outputs, VstInt3
             }
             case DETECTOR_SIDE:
             {
+                _in_meter[0].put(side);
+                _in_meter[1].put(side);
+                out1[i] = _comp[0].process(in1[i], side);
+                out2[i] = _comp[1].process(in2[i], side);
                 break;
             }
             default:

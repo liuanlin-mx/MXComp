@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="mx_comp" Version="11000" InternalType="Console">
+  <VirtualDirectory Name="MXComp">
+    <File Name="README.md"/>
+    <File Name="LICENSE"/>
+  </VirtualDirectory>
   <Plugins>
     <Plugin Name="qmake">
       <![CDATA[00050001N0005Debug0000000000000001N0009linux_vst0000000000000001N0015linux_vst_cmake0000000000000001N0015win32_vst_cmake0000000000000001N0009win64_vst000000000000]]>
